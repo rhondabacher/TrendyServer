@@ -105,7 +105,7 @@ shinyServer(function(input, output, session) {
         incProgress(0.4, detail = "Running Trendy...")
 
         setwd(outdir)
-        seg.all <- trendy(Data[1:10,], Mean.Cut = List$MeanCut, Max.K = List$MaxK, T.Vect = t.vect,
+        seg.all <- trendy(Data, Mean.Cut = List$MeanCut, Max.K = List$MaxK, T.Vect = t.vect,
                         Min.Num.In.Seg = List$MinNumInSeg, Pval.Cut = List$PvalCut, 
                         Cut.Diff = List$CutDiff, Save.Object = TRUE,
                         File.Name = List$outputName)
