@@ -79,7 +79,6 @@ shinyServer(function(input, output, session) {
               MaxK = input$maxK,
               MinNumInSeg = input$minNum,
               PvalCut = input$pvalCut,
-              CutDiff = input$cutDiff,
               outputName = paste0(outdir, input$outName),
               PlotData = ifelse(input$Plot_Data == "1", TRUE, FALSE),
               Info = paste0(outdir, input$outName, "_run_parameters.txt"),
@@ -107,33 +106,23 @@ shinyServer(function(input, output, session) {
         setwd(outdir)
         seg.all <- trendy(Data, Mean.Cut = List$MeanCut, Max.K = List$MaxK, T.Vect = t.vect,
                         Min.Num.In.Seg = List$MinNumInSeg, Pval.Cut = List$PvalCut, 
-                        Cut.Diff = List$CutDiff, Save.Object = TRUE,
+                        Save.Object = TRUE,
                         File.Name = List$outputName)
     
        
-        getAll <- toptrendy(seg.all, AdjR.Cut = -Inf)
+        getAll <- topTrendy(seg.all, AdjR2.Cut = -Inf)
 
-        max.len <- max(sapply(getAll$slp, length))
-        corrected.list <- lapply(getAll$slp, function(x) {c(x, rep(NA, max.len - length(x)))})
-        slp.mat <- do.call(rbind, corrected.list)
-        colnames(slp.mat) <- paste0(seq_len(max.len))
        
-
-        max.len <- max(sapply(getAll$bp, length))
-        corrected.list <- lapply(getAll$bp, function(x) {c(x, rep(NA, max.len - length(x)))})
-        bp.mat <- do.call(rbind, corrected.list)
-        colnames(bp.mat) <- paste0(seq_len(max.len))
-
-        getRsq <- sapply(seg.all, function(x) x$radj)
-        GenesToPlot <- names(sort(getRsq, decreasing=TRUE))
-        toOut <- data.frame(Gene = GenesToPlot, Slopes = round(slp.mat[GenesToPlot,], 5), 
-              Breakpoints = round(bp.mat[GenesToPlot,],5), adjustedRsq = round(getRsq[GenesToPlot],5))
+        toOut <- formatResults(getAll, Feature.Names = GenesToPlot)
 
      if (List$PlotData) {
         incProgress(0.1, detail = "Making scatterplots...")
-        XX <- plotmarker(Data, T.Vect = t.vect, File.Name = paste0(List$outputName,"_scatter.pdf"),
-                      Feature.Names=GenesToPlot, PDF= TRUE,
-                      Seg.Data = seg.all)
+        pdf(paste0(List$outputName,"_scatter.pdf"), height=15, width=10)
+        par(mfrow=c(3,2), mar=c(5,5,2,1))
+        XX <- plotFeature(Data, T.Vect = t.vect, 
+                      Feature.Names=GenesToPlot, Show.Fit=TRUE,
+                      Trendy.Out = seg.all)
+        dev.off()              
       }
 
       write.table(toOut, file=paste0(List$outputName, "_summaryTrendy.csv"), quote=F, sep=",", row.names=FALSE)
@@ -150,7 +139,6 @@ shinyServer(function(input, output, session) {
     print(paste0("Maximum possible breakpoints considered: ", List$MaxK))
     print(paste0("Minimum number of data per segment: ", List$MinNumInSeg))
     print(paste0("P-value for significance of segment trend (up or down): ", List$PvalCut))
-    print(paste0("Increase in model fit required to use additional breakpoints ", List$CutDiff))
     sink()
     
     

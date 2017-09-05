@@ -53,10 +53,7 @@ shinyUI(fluidPage(
                  numericInput("pvalCut",
                               label = "P-value to determine direction of segment (up, down, or same)",
                               value = .2),
-                 # CutDiff
-                 numericInput("cutDiff",
-                              label = "Improvement in model fit (Rsquared) to use additional breakpoints",
-                              value = .1),
+               
 
                  # out name
                  textInput("outName", 
