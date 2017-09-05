@@ -22,4 +22,5 @@ biocLite("EBSeq")
 ## To launch this Shiny app:
 
 library(shiny)
+
 runGitHub('rhondabacher/TrendyServer')
