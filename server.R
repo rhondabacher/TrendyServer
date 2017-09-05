@@ -112,7 +112,9 @@ shinyServer(function(input, output, session) {
        
         getAll <- topTrendy(seg.all, AdjR2.Cut = -Inf)
 
-       
+        getRsq <- getAll$AdjustedR2
+        GenesToPlot <- names(sort(getRsq, decreasing=TRUE))
+        
         toOut <- formatResults(getAll, Feature.Names = GenesToPlot)
 
      if (List$PlotData) {
