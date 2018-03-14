@@ -24,3 +24,9 @@ biocLite("EBSeq")
 library(shiny)
 
 runGitHub('rhondabacher/TrendyServer')
+
+## Last update was 3-14-2018
+### This is compatible with Trendy versions > v0.99.0
+##### Otherwise, download the previous verion of this under the Release page, unzip the package, then access by typing:
+library(shiny)
+runApp("pathToOlderVersionOfTrendyServer/TrendyServer")

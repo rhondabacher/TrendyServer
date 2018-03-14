@@ -48,7 +48,7 @@ shinyServer(function(input, output, session) {
         time.file <- NULL
         time.file <- input$TimeVector$name
         if (is.null(time.file)) {
-            t.vect = seq_len(ncol(Data))}
+            tVectIn = seq_len(ncol(Data))}
 
         if (!is.null(time.file)) {
             Time.Sep = strsplit(time.file, split = ".", fixed=TRUE)[[1]]
@@ -60,9 +60,9 @@ shinyServer(function(input, output, session) {
                 TimeIn = read.table(input$TimeVector$datapath, stringsAsFactors = FALSE,
                                 header = FALSE, sep="\t")
             }
-            t.vect = TimeIn[[1]]
-            names(t.vect) <- colnames(Data)
-            if (length(t.vect) != ncol(Data)) {
+            tVectIn = TimeIn[[1]]
+            names(tVectIn) <- colnames(Data)
+            if (length(tVectIn) != ncol(Data)) {
               stop("Length of the time vector is not the same as the number of samples!") }
 
         }
@@ -104,26 +104,29 @@ shinyServer(function(input, output, session) {
         incProgress(0.4, detail = "Running Trendy...")
 
         setwd(outdir)
-        seg.all <- trendy(Data, Mean.Cut = List$MeanCut, Max.K = List$MaxK, T.Vect = t.vect,
-                        Min.Num.In.Seg = List$MinNumInSeg, Pval.Cut = List$PvalCut, 
-                        Save.Object = TRUE,
-                        File.Name = List$outputName)
+        seg.all <- results(trendy(Data, tVectIn = tVectIn, saveObject = TRUE,
+                        fileName = List$outputName,
+						meanCut = List$MeanCut, 
+						maxK = List$MaxK, 
+                        minNumInSeg = List$MinNumInSeg, 
+						pvalCut = List$PvalCut, 
+                        ))
     
        
-        getAll <- topTrendy(seg.all, AdjR2.Cut = -Inf)
+        getAll <- topTrendy(seg.all, adjR2Cut = -Inf)
 
         getRsq <- getAll$AdjustedR2
         GenesToPlot <- names(sort(getRsq, decreasing=TRUE))
         
-        toOut <- formatResults(getAll, Feature.Names = GenesToPlot)
+        toOut <- formatResults(getAll, featureNames = GenesToPlot)
 
      if (List$PlotData) {
         incProgress(0.1, detail = "Making scatterplots...")
         pdf(paste0(List$outputName,"_scatter.pdf"), height=15, width=10)
         par(mfrow=c(3,2), mar=c(5,5,2,1))
-        XX <- plotFeature(Data, T.Vect = t.vect, 
-                      Feature.Names=GenesToPlot, Show.Fit=TRUE,
-                      Trendy.Out = seg.all)
+        XX <- plotFeature(Data, tVectIn = tVectIn, 
+                      featureNames=GenesToPlot, showFit=TRUE,
+                      trendyOutData = seg.all)
         dev.off()              
       }
 
